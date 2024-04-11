@@ -1,6 +1,6 @@
 using Microsoft.JSInterop;
 
-namespace WebView;
+namespace WebView.Components;
 
 /// <summary>
 /// This class provides an example of how JavaScript functionality can be wrapped

@@ -1,17 +1,156 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project>
+
+  <!-- Start of project override block. -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk.Razor" />
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <!--<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>-->
   </PropertyGroup>
 
+  <PropertyGroup Label="Environment">
+    <!--<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>-->
+    <!-- Use these properties only to control usage of unmanaged code. -->
+    <!--<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x86</Platforms>-->
+    <!-- Additional variables. -->
+    <!--<RuntimePlatform Condition="$([System.String]::IsNullOrWhitespace('$(RuntimeIdentifier)'))">portable</RuntimePlatform>
+    <RuntimePlatform Condition="$(RuntimeIdentifier.Contains('win'))">windows</RuntimePlatform>
+    <RuntimePlatform Condition="$(RuntimeIdentifier.Contains('linux'))">linux</RuntimePlatform>
+    <RuntimePlatform Condition="$(RuntimeIdentifier.Contains('osx'))">osx</RuntimePlatform>-->
+  </PropertyGroup>
+
+  <PropertyGroup Label="AssemblyInfo">
+    <!-- Semantic versioning https://semver.org
+    Assembly versioning https://docs.microsoft.com/en-us/dotnet/standard/library-guidance/versioning -->
+    <!--<Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0.0-develop</InformationalVersion>
+    <AssemblyTitle>File description property.</AssemblyTitle>
+    <Company>Company, Inc.</Company>
+    <Copyright>© Company, Inc. All rights reserved.</Copyright>
+    <NeutralLanguage/>
+    <Product>The name of the product, by default corresponds to the name of the project.</Product>
+    <RootNamespace>A main namespace, by default corresponds to the name of the project.</RootNamespace>
+    <ApplicationIcon>IconMain.ico</ApplicationIcon>-->
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- Additional package properties. -->
+    <Authors>virtualmode</Authors>
+    <Description>Cross-platform fast lightweight UI wrapper for Blazor web services.</Description>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/virtualmode/WebView</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/virtualmode/WebView</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageTags>our web gui</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!--<PackageIcon>The name of the image file from the project.</PackageIcon>
+    <PackageIconUrl>Or the network address of the package image.</PackageIconUrl>
+    <PackageId>Optional field, defaults to the project name.</PackageId>
+    <PackageLicenseExpression>License ID.</PackageLicenseExpression>
+    <PackageLicenseFile>Or the name of the license file from the project.</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>License acceptance by the user is required true or false.</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes/>-->
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- TODO debug Delete this after full snupkg support. -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Publish">
+    <!-- Deployment default overridable properties. -->
+    <!--<PublishDir>bin\Publish\</PublishDir>-->
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <PublishReadyToRunEmitSymbols>false</PublishReadyToRunEmitSymbols>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Debug">
+    <!-- You can use Condition="'$(GITLAB_CI)' == 'true'" in this tag. -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <DebugType>portable</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+
+  <ItemGroup Label="SourceLink">
+    <!-- https://github.com/virtualmode/SourceLink -->
+    <!-- https://github.com/dotnet/sourcelink/blob/main/docs/README.md -->
+    <!--<SourceRoot Include="$(MSBuildThisFileDirectory)" />
+    <SourceLinkGitLabHost Include="gitlab.local" ContentUrl="http://127.0.0.1:7080" Visible="false" />
+    <PackageReference Include="Microsoft.SourceLink.GitLab" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>-->
+  </ItemGroup>
+
+  <ItemGroup Label="Targets">
+    <Content Include="*.targets" PackagePath="build" />
+    <!-- Output directory with unmanaged code must conform to accepted package structure. -->
+    <Content Include="runtimes/**/*.dll;runtimes/**/*.so*;runtimes/**/*.dylib*">
+      <PackagePath>runtimes/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </Content>
+    <!-- Project necessary content. -->
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <Target Name="PopulateInfo" BeforeTargets="PrepareConstants;GenerateMSBuildEditorConfigFileShouldRun;GetAssemblyVersion;GetPackageMetadata;GenerateNuspec;Pack;BeforePublish">
+    <Exec Command="python ../.vscode/version.py -ls -b main" EchoOff="true" StandardErrorImportance="low" StandardOutputImportance="low" ConsoleToMSBuild="true" ContinueOnError="true" StdOutEncoding="utf-8">
+      <Output TaskParameter="ConsoleOutput" PropertyName="Version" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="PackageVersion" />
+      <Output TaskParameter="ExitCode" PropertyName="MSBuildLastExitCode" />
+    </Exec>
+    <PropertyGroup Condition="'$(MSBuildLastExitCode)' != '0'">
+      <Version>0.0.0</Version>
+      <PackageVersion>$(Version)</PackageVersion>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="EmbedScopedCssBundles" BeforeTargets="_CalculateEmbeddedFilesManifestInputs;PrepareResources">
+    <ItemGroup>
+      <ScopedCssBundle Include="$(IntermediateOutputPath)scopedcss\bundle\*.styles.css;$(IntermediateOutputPath)scopedcss\projectbundle\*.bundle.scp.css" />
+      <EmbeddedResource Include="@(ScopedCssBundle)" Link="wwwroot\%(Filename)%(Extension)" Type="Non-Resx" WithCulture="false" />
+    </ItemGroup>
+    <Message Text="CSS: @(ScopedCssBundle)" Importance="high" />
+  </Target>
+
   <ItemGroup>
-    <SupportedPlatform Include="browser" />
+    <!-- Browser compatibility https://learn.microsoft.com/en-us/aspnet/core/blazor/components/class-libraries#client-side-browser-compatibility-analyzer -->
+    <!--<SupportedPlatform Include="browser" />
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />-->
+    <EmbeddedResource Include="wwwroot\**\*" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.4" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.4" />
   </ItemGroup>
+
+  <!-- End of project override block. -->
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk.Razor" />
+
+  <PropertyGroup>
+    <BuildDependsOn>
+      StaticWebAssetsPrepareForRun;
+      $(BuildDependsOn);
+    </BuildDependsOn>
+  </PropertyGroup>
 
 </Project>

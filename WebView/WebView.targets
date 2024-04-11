@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <Runtimes Include="$(MSBuildThisFileDirectory)..\runtimes\**" />
+    <Symbols Include="$(MSBuildThisFileDirectory)..\lib\$(TargetFramework)\**\*.pdb" />
+  </ItemGroup>
+
+  <Target Name="CopyPackage" BeforeTargets="BeforeBuild">
+    <Copy SourceFiles="@(Runtimes)" DestinationFolder="$(OutDir)runtimes\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(Symbols)" DestinationFolder="$(OutDir)%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
