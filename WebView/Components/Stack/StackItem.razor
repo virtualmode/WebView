@@ -1,0 +1,9 @@
+@namespace WebView
+@inherits BaseComponent
+
+@if(ChildContent != null)
+{
+    <div class=@($"mediumFont ms-StackItem {ClassName}") style=@($"{GetStyles()}{Style}")>
+        @ChildContent
+    </div>
+}

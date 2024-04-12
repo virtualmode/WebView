@@ -1,0 +1,22 @@
+@namespace WebView
+@inherits BaseComponent
+
+<LocalCS @bind-Rules="@TooltipLocalRules" />
+
+<Callout ClassName=@($"mediumFont fadeIn200 {TooltipRule.Selector?.SelectorName} {TooltipAfterRule.Selector?.SelectorName} {ClassName}")
+         FabricComponentTarget=@FabricComponentTarget
+         DirectionalHint=@DirectionalHint
+         Style=@($"{Style}")
+         BeakWidth=@BeakWidth
+         GapSpace="@GapSpace"
+         DoNotLayer="false"
+         IsBeakVisible="@IsBeakVisible">
+    <div class="ms-Tooltip-content"
+         @onmouseenter=@OnMouseEnter
+         @onmouseleave=@OnMouseLeave
+         role="tooltip">
+        <p class="ms-Tooltip-subtext">
+            @ChildContent
+        </p>
+    </div>
+</Callout>

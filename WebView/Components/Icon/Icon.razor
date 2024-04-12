@@ -1,0 +1,38 @@
+@namespace WebView
+@inherits BaseComponent
+
+@if (IconType == IconType.Image)
+{
+    <div class=@($"ms-Icon ms-Icon-imageContainer {this.ClassName}")
+         style=@Style
+         @ref="RootElementReference"
+         role="presentation"
+         @attributes=@AdditionalAttributes>
+
+    </div>
+}
+else
+{
+    @if (IconSrc == null )
+    {
+        <i class=@($"ms-Icon {this.IconClassName} {this.ClassName}")
+            data-icon-name=@IconName
+            role="presentation"
+            style=@FontStyle
+            @ref="RootElementReference"
+            @attributes=@AdditionalAttributes>
+            @(IconMap.Icons.ContainsKey(SpecificIconName) ? char.ConvertFromUtf32(IconMap.Icons[SpecificIconName]) : "")
+        </i>
+    }
+    else
+    {
+        @if (ClassName == null)
+        {
+            <img style="height:20px" src=@IconSrc>
+        }
+        else
+        {
+            <img src=@IconSrc class=@ClassName style="height:20px">
+        }
+    }
+}

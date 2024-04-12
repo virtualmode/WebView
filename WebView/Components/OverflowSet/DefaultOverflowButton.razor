@@ -1,0 +1,8 @@
+@namespace WebView
+@inherits BaseComponent
+
+<IconButton IconName="more_horizontal" MenuItems=@OverflowItems />
+
+@code {
+    [Parameter] public IEnumerable<IContextualMenuItem>? OverflowItems { get; set; }
+}

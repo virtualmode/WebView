@@ -1,0 +1,76 @@
+@inherits ButtonParameters
+@namespace WebView
+@using Microsoft.AspNetCore.Components.Web
+
+
+@if (Primary)
+{
+    <PrimaryButton Href=@Href
+                   ClassName=@(ClassName + " ms-Button--compound")
+                   Style=@Style
+                   Primary=@Primary
+                   Disabled=@Disabled
+                   AllowDisabledFocus=@AllowDisabledFocus
+                   PrimaryDisabled=@PrimaryDisabled
+                   Checked=@Checked
+                   AriaDescripton=@AriaDescripton
+                   AriaLabel=@AriaLabel
+                   SplitButtonAriaLabel=@SplitButtonAriaLabel
+                   Text=@Text
+                   SecondaryText=@SecondaryText
+                   Toggle=@Toggle
+                   Split=@Split
+                   IconName=@IconName
+                   IconSrc=@IconSrc
+                   HideChevron=@HideChevron
+                   MenuItems=@MenuItems
+                   CheckedChanged=@CheckedChanged
+                   OnClick=@OnClick
+                   OnKeyDown=@OnKeyDown
+                   Command=@Command
+                   CommandParameter=@CommandParameter
+                   AdditionalAttributes=@AdditionalAttributes
+                   @ref="primaryButtonReference" />
+}
+else
+{
+    <DefaultButton Href=@Href
+                   ClassName=@(ClassName + " ms-Button--compound")
+                   Style=@Style
+                   Primary=@Primary
+                   Disabled=@Disabled
+                   AllowDisabledFocus=@AllowDisabledFocus
+                   PrimaryDisabled=@PrimaryDisabled
+                   Checked=@Checked
+                   AriaDescripton=@AriaDescripton
+                   AriaLabel=@AriaLabel
+                   SplitButtonAriaLabel=@SplitButtonAriaLabel
+                   Text=@Text
+                   SecondaryText=@SecondaryText
+                   Toggle=@Toggle
+                   Split=@Split
+                   IconName=@IconName
+                   IconSrc=@IconSrc
+                   HideChevron=@HideChevron
+                   MenuItems=@MenuItems
+                   CheckedChanged=@CheckedChanged
+                   OnClick=@OnClick
+                   OnKeyDown=@OnKeyDown
+                   Command=@Command
+                   CommandParameter=@CommandParameter
+                   AdditionalAttributes=@AdditionalAttributes
+                   @ref="defaultButtonReference" />
+}
+
+@code{
+    private DefaultButton defaultButtonReference = new DefaultButton();
+    private PrimaryButton primaryButtonReference = new PrimaryButton();
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (Primary)
+            RootElementReference = primaryButtonReference.RootElementReference;
+        else
+            RootElementReference = defaultButtonReference.RootElementReference;
+        base.OnAfterRender(firstRender);
+    }
+}

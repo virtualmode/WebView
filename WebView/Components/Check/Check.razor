@@ -1,0 +1,21 @@
+@namespace WebView
+@inherits BaseComponent
+
+<div class="root-Check">
+    <div class=@($"mediumFont ms-Check{(Checked ? " is-checked" : "")}")>
+        @if (UseFastIcons)
+        {
+            <FontIcon IconName="circle"
+                      ClassName="ms-Check-circle" />
+            <FontIcon IconName="checkmark"
+                      ClassName="ms-Check-check" />
+        }
+        else
+        {
+            <Icon IconName="circle"
+                  ClassName="ms-Check-circle" />
+            <Icon IconName="checkmark"
+                  ClassName="ms-Check-check" />
+        }
+    </div>
+</div>

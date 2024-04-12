@@ -1,0 +1,114 @@
+@inherits ButtonParameters
+@namespace WebView
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+
+@if (ChildContent == null)
+{
+    <ButtonBase Href=@Href
+                ClassName=@ClassName
+                Style=@Style
+                Primary=@primary
+                Disabled=@Disabled
+                AllowDisabledFocus=@AllowDisabledFocus
+                PrimaryDisabled=@PrimaryDisabled
+                Checked=@Checked
+                AriaDescripton=@AriaDescripton
+                SplitButtonAriaLabel=@SplitButtonAriaLabel
+                Text=@Text
+                SecondaryText=@SecondaryText
+                Toggle=@Toggle
+                Split=@Split
+                IconName=@IconName
+                HideChevron=@HideChevron
+                MenuItems=@MenuItems
+                CheckedChanged=@CheckedChanged
+                OnClick=@OnClick
+                OnKeyDown=@OnKeyDown
+                Command=@Command
+                CommandParameter=@CommandParameter
+                AdditionalAttributes=@AdditionalAttributes
+                @ref="baseReference" />
+}
+else
+{
+    <ButtonBase Href=@Href
+                ClassName=@ClassName
+                Style=@Style
+                Primary=@primary
+                Disabled=@Disabled
+                AllowDisabledFocus=@AllowDisabledFocus
+                PrimaryDisabled=@PrimaryDisabled
+                Checked=@Checked
+                AriaDescripton=@AriaDescripton
+                SplitButtonAriaLabel=@SplitButtonAriaLabel
+                Text=@Text
+                ContentTemplate=@ChildContent
+                SecondaryText=@SecondaryText
+                Toggle=@Toggle
+                Split=@Split
+                IconName=@IconName
+                HideChevron=@HideChevron
+                MenuItems=@MenuItems
+                CheckedChanged=@CheckedChanged
+                OnClick=@OnClick
+                OnKeyDown=@OnKeyDown
+                Command=@Command
+                CommandParameter=@CommandParameter
+                AdditionalAttributes=@AdditionalAttributes
+                @ref="baseReference" />
+}
+
+@code{
+    [CascadingParameter] EditContext CascadedEditContext { get; set; } = default!;
+    [Parameter] public bool ForceDefault { get; set; } = false;
+
+    private ButtonBase baseReference = new ButtonBase();
+    private bool primary = true;
+
+    protected override void OnParametersSet()
+    {
+        if (ForceDefault)
+            primary = false;
+
+        if (AdditionalAttributes != null)
+        {
+            if (AdditionalAttributes.ContainsKey("type"))
+                AdditionalAttributes["type"] = "submit";
+            else
+                AdditionalAttributes.Add("type", "submit");
+        }
+        else
+        {
+            AdditionalAttributes = new Dictionary<string, object>();
+            AdditionalAttributes.Add("type", "submit");
+        }
+        if (CascadedEditContext != null)
+        {
+            if (CascadedEditContext.GetValidationMessages().Any())
+                Disabled = true;
+            else
+                Disabled = false;
+
+            CascadedEditContext.OnValidationStateChanged += CascadedEditContext_OnValidationStateChanged;
+        }
+
+        base.OnParametersSet();
+    }
+
+    private void CascadedEditContext_OnValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        if (CascadedEditContext.GetValidationMessages().Any())
+            Disabled = true;
+        else
+            Disabled = false;
+        InvokeAsync(() => StateHasChanged());  //invokeasync required for serverside
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        RootElementReference = baseReference.RootElementReference;
+        base.OnAfterRender(firstRender);
+    }
+}

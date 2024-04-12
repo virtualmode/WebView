@@ -1,0 +1,38 @@
+@namespace WebView
+@inherits BaseComponent
+@using Microsoft.AspNetCore.Components.Web
+
+@*<KeytipData keytipProps={keytipProps} disabled={disabled}>
+    {(keytipAttributes: any): JSX.Element => (*@
+<div class=@($"ms-Checkbox {(_isChecked ? "is-checked" : "")} {(_reversed ? "reversed" : "")} {(Disabled ? "is-disabled" : "")} {(_indeterminate ? "is-indeterminate": "")} {ClassName}")
+     style=@Style
+     @ref="RootElementReference">
+    <input type="checkbox"
+           id=@Id
+           class=@($"ms-Checkbox-input mediumFont" )
+           checked=@_isChecked
+           disabled=@Disabled
+           @onchange="InternalOnChange"
+           aria-disabled=@Disabled
+           aria-label=@AriaLabel
+           aria-labelledby=@AriaLabelledBy
+           aria-describedby=@AriaDescribedBy
+           aria-posinset=@AriaPositionInSet
+           aria-setsize=@AriaSetSize />
+    <label class=@($"ms-Checkbox-label") for="@Id">
+        <div class=@($"ms-Checkbox-checkbox")>
+            <Icon IconName="checkmark" IconSize=20 ClassName="ms-Checkbox-checkmark ms-Icon ms-Icon--CheckMark" AriaHidden=true></Icon>
+            @*<i class=@($"ms-Checkbox-checkmark ms-Icon ms-Icon--CheckMark") aria-hidden="true"></i>*@
+        </div>
+        @if (OnRenderLabel == null)
+        {
+            <span class=@($"ms-Checkbox-text")>@Label</span>
+        }
+        else
+        {
+            @OnRenderLabel
+        }
+    </label>
+</div>
+@*)}
+    </KeytipData>*@

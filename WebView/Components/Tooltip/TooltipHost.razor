@@ -1,0 +1,33 @@
+@namespace WebView
+@inherits BaseComponent
+
+<div class=@($"ms-TooltipHost {HostClassName}")
+     style=@Style
+     @ref=@RootElementReference
+     @onfocus=@OnFocus
+     @onblur=@OnBlur
+     @onmouseenter=@OnTooltipMouseEnter
+     @onmouseleave=@OnTooltipMouseLeave
+     @onkeydown=@OnTooltipKeyDown>
+
+    @ChildContent
+
+    @if (IsTooltipVisible)
+    {
+        <Tooltip DirectionalHint=@DirectionalHint
+                 FabricComponentTarget=@TargetElement
+                 OnMouseLeave=@OnTooltipMouseEnter
+                 OnMouseEnter=@OnTooltipMouseLeave
+                 GapSpace=@GapSpace
+                 IsBeakVisible=@IsBeakVisible>
+            @TooltipContent
+        </Tooltip>
+    }
+    @if (IsAriaPlaceholderRendered)
+    {
+        <div style="display:none;">
+            @TooltipContent
+        </div>
+    }
+
+</div>
