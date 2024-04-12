@@ -1,0 +1,8 @@
+@namespace WebView
+
+@foreach (var portalPair in portalFragments)
+{
+    <LayerPortal @key=@portalPair.Id Id=@portalPair.Id @ref=@portals[portalPair.Id!] >
+        @portalPair.Fragment
+    </LayerPortal> 
+}

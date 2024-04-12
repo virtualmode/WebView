@@ -15,7 +15,7 @@ public class ExampleJsInterop : IAsyncDisposable
 
     public ExampleJsInterop(IJSRuntime jsRuntime)
     {
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/WebView/exampleJsInterop.js").AsTask());
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", $"./_content/{WebViewService.Name}/exampleJsInterop.js").AsTask());
     }
 
     public async ValueTask<string> Prompt(string message)

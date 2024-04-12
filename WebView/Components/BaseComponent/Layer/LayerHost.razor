@@ -1,0 +1,11 @@
+@namespace WebView
+@inherits BaseComponent
+
+<div style=@Style id=@Id class=@(string.IsNullOrWhiteSpace(Id) ? "ms-Layer--fixed" : "")
+    @ref="RootElementReference">
+    
+    @ChildContent
+        
+    <LayerPortalGenerator @ref="portalGeneratorReference" />
+</div>
+

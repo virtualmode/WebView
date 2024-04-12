@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -34,6 +35,16 @@ public abstract class WebViewService : BackgroundService
     protected readonly ICircuitService _circuitService;
 
     private bool _firstConnectionOccurred;
+
+    /// <summary>
+    /// Service assembly.
+    /// </summary>
+    public static Assembly Assembly { get; } = typeof(WebViewService).Assembly;
+
+    /// <summary>
+    /// Service assembly name.
+    /// </summary>
+    public static string Name { get; } = Assembly.GetName().Name ?? throw new Exception("Can't get assembly information.");
 
     public WebViewService(ILogger<WebViewService> logger, IServiceProvider serviceProvider, IHostApplicationLifetime hostLifetime, ICircuitService circuitService)
     {

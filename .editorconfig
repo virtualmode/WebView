@@ -2,7 +2,8 @@
 
 root = true
 
-[*,*.{cs,css,cshtml,htm,html,java,js,kt,py,razor}]
+# Unsupported format [*,*.{cs,css,cshtml,htm,html,java,js,kt,py,razor}]
+[*]
 charset = utf-8
 end_of_line = lf
 indent_size = 4

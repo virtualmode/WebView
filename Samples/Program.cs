@@ -1,19 +1,15 @@
-using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.FileProviders;
 
 using Samples;
 using Samples.Components;
 using WebView;
-using WebView.Circuits;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 // Add WebView services.
-builder.Services.AddSingleton<ICircuitService, CircuitService>();
-builder.Services.AddScoped<CircuitHandler>((serviceProvider) => new CircuitHandlerService(serviceProvider.GetRequiredService<ICircuitService>()));
-// Main services.
+builder.Services.AddWebView();
 builder.Services.AddHostedService<AppService>();
 
 var app = builder.Build();
@@ -34,7 +30,7 @@ app.UseStaticFiles(new StaticFileOptions() // Current assembly embedded resource
 {
     FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly, "wwwroot")
 });
-app.UseWebView(); // Razor class library embedded resources.
+app.UseWebViewStaticFiles(); // Razor class library embedded resources.
 
 // Using provider composition.
 /*app.UseStaticFiles(new StaticFileOptions()
@@ -44,8 +40,5 @@ app.UseWebView(); // Razor class library embedded resources.
 });*/
 
 app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 app.Run();

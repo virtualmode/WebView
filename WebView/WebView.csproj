@@ -141,6 +141,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.4" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.4" />
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
   </ItemGroup>
 
   <!-- End of project override block. -->
