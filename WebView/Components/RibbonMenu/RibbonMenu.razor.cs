@@ -1,43 +1,33 @@
 using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace WebView
+namespace WebView;
+
+public partial class RibbonMenu<TItem> : BaseComponent
 {
-    public partial class RibbonMenu<TItem> : BaseComponent
-    {
-        [Parameter] public RenderFragment? ChildContent { get; set; }
+    private bool _showBackstage;
 
-        [Parameter] public RenderFragment? Backstage { get; set; }
-        [Parameter] public string? BackstageHeader { get; set; }
-        bool showBackstage;
-        [Parameter] public bool ShowBackstage 
-        { 
-            get
+#pragma warning disable BL0007 // Component parameters should be auto properties.
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? Backstage { get; set; }
+    [Parameter] public string? BackstageHeader { get; set; }
+    [Parameter] public EventCallback<bool> ShowBackstageChanged { get; set; }
+    [Parameter] public IEnumerable<TItem>? ItemsSource { get; set; }
+    [Parameter] public RenderFragment<TItem>? ItemTemplate { get; set; }
+    [Parameter]
+    public bool ShowBackstage
+    {
+        get
+        {
+            return _showBackstage;
+        }
+        set
+        {
+            if (_showBackstage != value)
             {
-                return showBackstage;
-            }
-            set
-            {
-                if(showBackstage != value)
-                {
-                    showBackstage = value;
-                    ShowBackstageChanged.InvokeAsync(showBackstage);
-                }
+                _showBackstage = value;
+                ShowBackstageChanged.InvokeAsync(_showBackstage);
             }
         }
-        [Parameter] public EventCallback<bool> ShowBackstageChanged { get; set; }
-        //private async Task OnShowBackstageChanged(ChangeEventArgs e)
-        //{
-        //    bool showBackstage = (bool)e.Value;
-        //    await ShowBackstageChanged.InvokeAsync(showBackstage);
-        //}
-
-        [Parameter] public IEnumerable<TItem>? ItemsSource { get; set; }
-        //[Parameter] public Func<TItem, string> GetKey { get; set; }
-        [Parameter] public RenderFragment<TItem>? ItemTemplate { get; set; }
     }
-   
+#pragma warning restore BL0007 // Component parameters should be auto properties.
 }

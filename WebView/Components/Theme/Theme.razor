@@ -164,85 +164,86 @@
 
     private string GetGlobalVariables()
     {
-        System.Text.StringBuilder sbuilder = new System.Text.StringBuilder("");
+        System.Text.StringBuilder sbuilder = new System.Text.StringBuilder(string.Empty);
 
         try
         {
             if (this.ThemeProvider != null && this.ThemeProvider.Theme != null)
             {
+                var propsEmpty = new System.Reflection.PropertyInfo[0];
                 var props = ThemeProvider.Theme.Palette.GetType().GetProperties();
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
-                    System.Diagnostics.Debug.WriteLine($"Name: {name}");
+                    //System.Diagnostics.Debug.WriteLine($"Name: {name}");
                     var val = prop.GetValue(this.ThemeProvider?.Theme.Palette, null);
                     sbuilder.Append($"--palette-{name}: {val};");
                 }
 
-                props = ThemeProvider.Theme.SemanticColors.GetType().GetProperties();
+                props = ThemeProvider?.Theme.SemanticColors.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--semanticColors-{name}: {prop.GetValue(this.ThemeProvider?.Theme.SemanticColors, null)};");
                 }
 
-                props = ThemeProvider.Theme.SemanticTextColors.GetType().GetProperties();
+                props = ThemeProvider?.Theme.SemanticTextColors.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--semanticTextColors-{name}: {prop.GetValue(this.ThemeProvider?.Theme.SemanticTextColors, null)};");
                 }
 
-                props = ThemeProvider.Theme.Effects.GetType().GetProperties();
+                props = ThemeProvider?.Theme.Effects.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--effects-{name}: {prop.GetValue(this.ThemeProvider?.Theme.Effects, null)};");
                 }
 
-                props = ThemeProvider.Theme.Depths.GetType().GetProperties();
+                props = ThemeProvider?.Theme.Depths.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--depths-{name}: {prop.GetValue(this.ThemeProvider?.Theme.Depths)};");
                 }
 
-                props = ThemeProvider.Theme.Animation.GetType().GetProperties();
+                props = ThemeProvider?.Theme.Animation.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--animation-{name}: {prop.GetValue(this.ThemeProvider?.Theme.Animation)};");
                 }
 
-                props = ThemeProvider.Theme.CommonStyle.GetType().GetProperties();
+                props = ThemeProvider?.Theme.CommonStyle.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--commonStyle-{name}: {prop.GetValue(this.ThemeProvider?.Theme.CommonStyle)};");
                 }
 
-                props = ThemeProvider.Theme.FontStyle.FontSize.GetType().GetProperties();
+                props = ThemeProvider?.Theme.FontStyle.FontSize.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--fontSize-{name}: {prop.GetValue(this.ThemeProvider?.Theme.FontStyle.FontSize)};");
                 }
 
-                props = ThemeProvider.Theme.FontStyle.FontWeight.GetType().GetProperties();
+                props = ThemeProvider?.Theme.FontStyle.FontWeight.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--fontWeight-{name}: {prop.GetValue(this.ThemeProvider?.Theme.FontStyle.FontWeight)};");
                 }
 
-                props = ThemeProvider.Theme.FontStyle.IconFontSize.GetType().GetProperties();
+                props = ThemeProvider?.Theme.FontStyle.IconFontSize.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;
                     sbuilder.Append($"--iconFontSize-{name}: {prop.GetValue(this.ThemeProvider?.Theme.FontStyle.IconFontSize)};");
                 }
 
-                props = ThemeProvider.Theme.ZIndex.GetType().GetProperties();
+                props = ThemeProvider?.Theme.ZIndex.GetType().GetProperties() ?? propsEmpty;
                 foreach (var prop in props)
                 {
                     var name = prop.Name;

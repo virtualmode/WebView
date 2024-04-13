@@ -9,8 +9,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType Condition="'$(Configuration)' == 'Release'">WinExe</OutputType>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <TraceSingleFileBundler>true</TraceSingleFileBundler>
-    <!--<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    <!--<TraceSingleFileBundler>true</TraceSingleFileBundler>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <DisableScopedCssBundling>true</DisableScopedCssBundling>
     <ScopedCssEnabled>false</ScopedCssEnabled>-->
@@ -31,7 +31,6 @@
       <ScopedCssBundle Include="$(IntermediateOutputPath)scopedcss\bundle\*.styles.css;$(IntermediateOutputPath)scopedcss\projectbundle\*.bundle.scp.css" />
       <EmbeddedResource Include="@(ScopedCssBundle)" Link="wwwroot\%(Filename)%(Extension)" Type="Non-Resx" WithCulture="false" />
     </ItemGroup>
-    <Message Text="CSS: @(ScopedCssBundle)" Importance="high" />
   </Target>
 
   <ItemGroup>

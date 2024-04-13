@@ -1,5 +1,3 @@
-using System.Runtime.Serialization;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +15,6 @@ public static class ServiceExtension
         services.AddSingleton<ICircuitService, CircuitService>();
         services.AddScoped<CircuitHandler>((serviceProvider) => new CircuitHandlerService(serviceProvider.GetRequiredService<ICircuitService>()));
 
-        services.AddScoped<ObjectIDGenerator>();
         services.AddScoped<IComponentStyle, ComponentStyle>();
         services.AddScoped<ThemeProvider>();
         services.AddScoped<ScopedStatics>();

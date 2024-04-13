@@ -1,130 +1,121 @@
-using WebView.Style;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+namespace WebView;
 
-namespace WebView
+public partial class Rating : BaseComponent
 {
-    public partial class Rating : BaseComponent
+    private const int ratingLargeIconSize = 20;
+    private const int ratingSmallIconSize = 16;
+    private const int ratingVerticalPadding = 8;
+    private const int ratingHorizontalPadding = 2;
+
+    private double _rating = -1;
+
+    protected ElementReference[]? StarReferences { get; set; }
+
+#pragma warning disable BL0007 // Component parameters should be auto properties.
+    [Parameter] public bool AllowZeroStars { get; set; }
+    [Parameter] public string IconName { get; set; } = "star";
+    [Parameter] public int Max { get; set; } = 5;
+    [Parameter] public double RatingValue
     {
-        private double rating = -1;
-
-        protected ElementReference[]? StarReferences { get; set; }
-
-        [Parameter] public bool AllowZeroStars { get; set; }
-
-        [Parameter] public string IconName { get; set; } = "star";
-        [Parameter] public int Max { get; set; } = 5;
-        [Parameter] public double RatingValue
+        get => _rating;
+        set
         {
-            get => rating;
-            set
+            if (value == _rating)
             {
-                if (value == rating)
-                {
-                    return;
-                }
-                rating = value;
-                RatingValueChanged.InvokeAsync(value);
-                OnChange.InvokeAsync(value);
-                //StateHasChanged();
+                return;
             }
+            _rating = value;
+            RatingValueChanged.InvokeAsync(value);
+            OnChange.InvokeAsync(value);
+            //StateHasChanged();
         }
-        [Parameter] public bool Disabled { get; set; }
-        [Parameter] public bool ReadOnly { get; set; }
-        [Parameter] public RatingSize Size { get; set; } = RatingSize.Small;
-        [Parameter] public string UnselectedIcon { get; set; } = "FavoriteStar";
+    }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public RatingSize Size { get; set; } = RatingSize.Small;
+    [Parameter] public string UnselectedIcon { get; set; } = "FavoriteStar";
 
-        [Parameter] public string AriaLabelFormat { get; set; } = "{0} of {1} stars";
-        [Parameter] public Func<double, double, string>? GetAriaLabel { get; set; }
-        [Parameter] public EventCallback<double> RatingValueChanged { get; set; }
-        [Parameter] public EventCallback<double> OnChange { get; set; }
+    [Parameter] public string AriaLabelFormat { get; set; } = "{0} of {1} stars";
+    [Parameter] public Func<double, double, string>? GetAriaLabel { get; set; }
+    [Parameter] public EventCallback<double> RatingValueChanged { get; set; }
+    [Parameter] public EventCallback<double> OnChange { get; set; }
+#pragma warning restore BL0007 // Component parameters should be auto properties.
 
-        private const int ratingLargeIconSize = 20;
-        private const int ratingSmallIconSize = 16;
-        private const int ratingVerticalPadding = 8;
-        private const int ratingHorizontalPadding = 2;
+    protected override Task OnInitializedAsync()
+    {
+        RatingValue = GetRatingSecure();
+        return base.OnInitializedAsync();
+    }
 
-        protected override Task OnInitializedAsync()
+    protected override Task OnParametersSetAsync()
+    {
+        if (StarReferences == null)
         {
-            RatingValue = GetRatingSecure();
-            return base.OnInitializedAsync();
+            StarReferences = new ElementReference[Max];
+        }
+        else if (Max != StarReferences.Length)
+        {
+            StarReferences = new ElementReference[Max];
         }
 
-        protected override Task OnParametersSetAsync()
-        {
-            if (StarReferences == null)
-            {
-                StarReferences = new ElementReference[Max];
-            }
-            else if (Max != StarReferences.Length)
-            {
-                StarReferences = new ElementReference[Max];
-            }
+        return base.OnParametersSetAsync();
+    }
 
-            return base.OnParametersSetAsync();
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            StateHasChanged();
         }
 
-        protected override Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                StateHasChanged();
-            }
+        return base.OnAfterRenderAsync(firstRender);
+    }
 
-            return base.OnAfterRenderAsync(firstRender);
+    protected static Task OnFocus(ChangeEventArgs args)
+    {
+        Console.WriteLine("Focused");
+        return Task.CompletedTask;
+    }
 
-        }
-
-        protected static Task OnFocus(ChangeEventArgs args)
-        {
-            Console.WriteLine("Focused");
+    protected Task OnClick(int value)
+    {
+        if (ReadOnly || Disabled)
             return Task.CompletedTask;
-        }
 
-        protected Task OnClick(int value)
+        RatingValue = value;
+        return Task.CompletedTask;
+    }
+
+    private double GetRatingSecure()
+    {
+        return Math.Min(Math.Max(RatingValue, (AllowZeroStars ? 0 : 1)), Max);
+    }
+
+    protected double GetFullRating()
+    {
+        return Math.Ceiling(RatingValue);
+    }
+
+    protected double GetPercentageOf(int starNumber)
+    {
+        double fullRating = GetFullRating();
+        double fullStar = 100;
+
+        if (starNumber == RatingValue)
         {
-            if (ReadOnly || Disabled)
-                return Task.CompletedTask;
-
-            RatingValue = value;
-            return Task.CompletedTask;
+            fullStar = 100;
         }
-
-        private double GetRatingSecure()
+        else if (starNumber == fullRating)
         {
-            return Math.Min(Math.Max(RatingValue, (AllowZeroStars ? 0 : 1)), Max);
+            fullStar = 100 * (RatingValue % 1);
         }
-
-        protected double GetFullRating()
+        else if (starNumber > fullRating)
         {
-            return Math.Ceiling(RatingValue);
+            fullStar = 0;
         }
 
-        protected double GetPercentageOf(int starNumber)
-        {
-            double fullRating = GetFullRating();
-            double fullStar = 100;
-
-            if (starNumber == RatingValue)
-            {
-                fullStar = 100;
-            }
-            else if (starNumber == fullRating)
-            {
-                fullStar = 100 * (RatingValue % 1);
-            }
-            else if (starNumber > fullRating)
-            {
-                fullStar = 0;
-            }
-
-            return fullStar;
-        }
-
-
+        return fullStar;
     }
 }

@@ -1,26 +1,21 @@
 // from https://github.com/mattmc3/dotmore/tree/master/dotmore/Collections/Generic
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
 
 namespace WebView
 {
-    public class OrderedDictionary<TKey, TValue> : IOrderedDictionary<TKey,TValue>
+    public class OrderedDictionary<TKey, TValue> : IOrderedDictionary<TKey, TValue?> where TKey : notnull
     {
         #region Fields/Properties
 
-        private KeyedCollection2<TKey, KeyValuePair<TKey, TValue>> _keyedCollection;
+        private KeyedCollection2<TKey, KeyValuePair<TKey, TValue?>> _keyedCollection = new KeyedCollection2<TKey, KeyValuePair<TKey, TValue?>>(x => x.Key);
 
         /// <summary>
         /// Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="key">The key associated with the value to get or set.</param>
-        public TValue this[TKey key]
+        public TValue? this[TKey key]
         {
             get
             {
@@ -36,7 +31,7 @@ namespace WebView
         /// Gets or sets the value at the specified index.
         /// </summary>
         /// <param name="index">The index of the value to get or set.</param>
-        public TValue this[int index]
+        public TValue? this[int index]
         {
             get
             {
@@ -71,7 +66,7 @@ namespace WebView
         /// <summary>
         /// Gets all the values in the ordered dictionary in their proper order.
         /// </summary>
-        public ICollection<TValue> Values
+        public ICollection<TValue?> Values
         {
             get
             {
@@ -80,9 +75,9 @@ namespace WebView
         }
 
         /// <summary>
-        /// Gets the key comparer for this dictionary
+        /// Gets the key comparer for this dictionary.
         /// </summary>
-        public IEqualityComparer<TKey> Comparer
+        public IEqualityComparer<TKey>? Comparer
         {
             get;
             private set;
@@ -94,7 +89,6 @@ namespace WebView
 
         public OrderedDictionary()
         {
-            Initialize();
         }
 
         public OrderedDictionary(IEqualityComparer<TKey> comparer)
@@ -102,37 +96,35 @@ namespace WebView
             Initialize(comparer);
         }
 
-        public OrderedDictionary(IOrderedDictionary<TKey, TValue> dictionary)
+        public OrderedDictionary(IOrderedDictionary<TKey, TValue?> dictionary)
         {
-            Initialize();
-            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+            foreach (KeyValuePair<TKey, TValue?> pair in dictionary)
             {
                 _keyedCollection.Add(pair);
             }
         }
 
-        public OrderedDictionary(IOrderedDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+        public OrderedDictionary(IOrderedDictionary<TKey, TValue?> dictionary, IEqualityComparer<TKey> comparer)
         {
             Initialize(comparer);
-            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+            foreach (KeyValuePair<TKey, TValue?> pair in dictionary)
             {
                 _keyedCollection.Add(pair);
             }
         }
 
-        public OrderedDictionary(IEnumerable<KeyValuePair<TKey, TValue>> items)
+        public OrderedDictionary(IEnumerable<KeyValuePair<TKey, TValue?>> items)
         {
-            Initialize();
-            foreach (KeyValuePair<TKey, TValue> pair in items)
+            foreach (KeyValuePair<TKey, TValue?> pair in items)
             {
                 _keyedCollection.Add(pair);
             }
         }
 
-        public OrderedDictionary(IEnumerable<KeyValuePair<TKey, TValue>> items, IEqualityComparer<TKey> comparer)
+        public OrderedDictionary(IEnumerable<KeyValuePair<TKey, TValue?>> items, IEqualityComparer<TKey> comparer)
         {
             Initialize(comparer);
-            foreach (KeyValuePair<TKey, TValue> pair in items)
+            foreach (KeyValuePair<TKey, TValue?> pair in items)
             {
                 _keyedCollection.Add(pair);
             }
@@ -142,17 +134,10 @@ namespace WebView
 
         #region Methods
 
-        private void Initialize(IEqualityComparer<TKey> comparer = null)
+        private void Initialize(IEqualityComparer<TKey> comparer)
         {
             Comparer = comparer;
-            if (comparer != null)
-            {
-                _keyedCollection = new KeyedCollection2<TKey, KeyValuePair<TKey, TValue>>(x => x.Key, comparer);
-            }
-            else
-            {
-                _keyedCollection = new KeyedCollection2<TKey, KeyValuePair<TKey, TValue>>(x => x.Key);
-            }
+            _keyedCollection = new KeyedCollection2<TKey, KeyValuePair<TKey, TValue?>>(x => x.Key, comparer);
         }
 
         /// <summary>
@@ -160,9 +145,9 @@ namespace WebView
         /// </summary>
         /// <param name="key">The key of the element to add.</param>
         /// <param name="value">The value of the element to add.  The value can be null for reference types.</param>
-        public void Add(TKey key, TValue value)
+        public void Add(TKey key, TValue? value)
         {
-            _keyedCollection.Add(new KeyValuePair<TKey, TValue>(key, value));
+            _keyedCollection.Add(new KeyValuePair<TKey, TValue?>(key, value));
         }
 
         /// <summary>
@@ -179,9 +164,9 @@ namespace WebView
         /// <param name="index">The insertion index.  This value must be between 0 and the count of items in this object.</param>
         /// <param name="key">A unique key for the element to add</param>
         /// <param name="value">The value of the element to add.  Can be null for reference types.</param>
-        public void Insert(int index, TKey key, TValue value)
+        public void Insert(int index, TKey key, TValue? value)
         {
-            _keyedCollection.Insert(index, new KeyValuePair<TKey, TValue>(key, value));
+            _keyedCollection.Insert(index, new KeyValuePair<TKey, TValue?>(key, value));
         }
 
         /// <summary>
@@ -206,7 +191,7 @@ namespace WebView
         /// </summary>
         /// <param name="value">The value to locate in this object.</param>
         /// <returns>True if the value is found.  False otherwise.</returns>
-        public bool ContainsValue(TValue value)
+        public bool ContainsValue(TValue? value)
         {
             return Values.Contains(value);
         }
@@ -217,7 +202,7 @@ namespace WebView
         /// <param name="value">The value to locate in this object.</param>
         /// <param name="comparer">The equality comparer used to locate the specified value in this object.</param>
         /// <returns>True if the value is found.  False otherwise.</returns>
-        public bool ContainsValue(TValue value, IEqualityComparer<TValue> comparer)
+        public bool ContainsValue(TValue? value, IEqualityComparer<TValue?> comparer)
         {
             return Values.Contains(value, comparer);
         }
@@ -239,7 +224,7 @@ namespace WebView
         /// <exception cref="ArgumentOutOfRangeException">
         /// Thrown when the index specified does not refer to a KeyValuePair in this object
         /// </exception>
-        public KeyValuePair<TKey, TValue> GetItem(int index)
+        public KeyValuePair<TKey, TValue?> GetItem(int index)
         {
             if (index < 0 || index >= _keyedCollection.Count)
             {
@@ -256,20 +241,20 @@ namespace WebView
         /// <exception cref="ArgumentOutOfRangeException">
         /// Thrown when the index specified does not refer to a KeyValuePair in this object
         /// </exception>
-        public void SetItem(int index, TValue value)
+        public void SetItem(int index, TValue? value)
         {
             if (index < 0 || index >= _keyedCollection.Count)
             {
                 throw new ArgumentException($"The index is outside the bounds of the dictionary: {index}");
             }
-            KeyValuePair<TKey, TValue> kvp = new(_keyedCollection[index].Key, value);
+            KeyValuePair<TKey, TValue?> kvp = new(_keyedCollection[index].Key, value);
             _keyedCollection[index] = kvp;
         }
 
         /// <summary>
         /// Returns an enumerator that iterates through all the KeyValuePairs in this object.
         /// </summary>
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, TValue?>> GetEnumerator()
         {
             return _keyedCollection.GetEnumerator();
         }
@@ -301,13 +286,13 @@ namespace WebView
         /// Gets the value associated with the specified key.
         /// </summary>
         /// <param name="key">The key associated with the value to get.</param>
-        public TValue GetValue(TKey key)
+        public TValue? GetValue(TKey key)
         {
             if (_keyedCollection.Contains(key) == false)
             {
                 throw new ArgumentException($"The given key is not present in the dictionary: {0}");
             }
-            KeyValuePair<TKey, TValue> kvp = _keyedCollection[key];
+            KeyValuePair<TKey, TValue?> kvp = _keyedCollection[key];
             return kvp.Value;
         }
 
@@ -316,9 +301,9 @@ namespace WebView
         /// </summary>
         /// <param name="key">The key associated with the value to set.</param>
         /// <param name="value">The the value to set.</param>
-        public void SetValue(TKey key, TValue value)
+        public void SetValue(TKey key, TValue? value)
         {
-            KeyValuePair<TKey, TValue> kvp = new(key, value);
+            KeyValuePair<TKey, TValue?> kvp = new(key, value);
             int idx = IndexOf(key);
             if (idx > -1)
             {
@@ -336,12 +321,12 @@ namespace WebView
         /// <param name="key">The key of the desired element.</param>
         /// <param name="value">
         /// When this method returns, contains the value associated with the specified key if
-        /// that key was found.  Otherwise it will contain the default value for parameter's type.
+        /// that key was found. Otherwise it will contain the default value for parameter's type.
         /// This parameter should be provided uninitialized.
         /// </param>
-        /// <returns>True if the value was found.  False otherwise.</returns>
+        /// <returns>True if the value was found. False otherwise.</returns>
         /// <remarks></remarks>
-        public bool TryGetValue(TKey key, out TValue value)
+        public bool TryGetValue(TKey key, out TValue? value)
         {
             if (_keyedCollection.Contains(key))
             {
@@ -350,7 +335,7 @@ namespace WebView
             }
             else
             {
-                value = default(TValue);
+                value = default;
                 return false;
             }
         }
@@ -384,7 +369,7 @@ namespace WebView
             _keyedCollection.Sort((x, y) => comparer.Compare(x.Value, y.Value));
         }
 
-        public void SortValues(Comparison<TValue> comparison)
+        public void SortValues(Comparison<TValue?> comparison)
         {
             _keyedCollection.Sort((x, y) => comparison(x.Value, y.Value));
         }
@@ -392,37 +377,37 @@ namespace WebView
 
         #region IDictionary<TKey, TValue>
 
-        void IDictionary<TKey, TValue>.Add(TKey key, TValue value)
+        void IDictionary<TKey, TValue?>.Add(TKey key, TValue? value)
         {
             Add(key, value);
         }
 
-        bool IDictionary<TKey, TValue>.ContainsKey(TKey key)
+        bool IDictionary<TKey, TValue?>.ContainsKey(TKey key)
         {
             return ContainsKey(key);
         }
 
-        ICollection<TKey> IDictionary<TKey, TValue>.Keys
+        ICollection<TKey> IDictionary<TKey, TValue?>.Keys
         {
             get { return Keys; }
         }
 
-        bool IDictionary<TKey, TValue>.Remove(TKey key)
+        bool IDictionary<TKey, TValue?>.Remove(TKey key)
         {
             return Remove(key);
         }
 
-        bool IDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value)
+        bool IDictionary<TKey, TValue?>.TryGetValue(TKey key, out TValue? value)
         {
             return TryGetValue(key, out value);
         }
 
-        ICollection<TValue> IDictionary<TKey, TValue>.Values
+        ICollection<TValue?> IDictionary<TKey, TValue?>.Values
         {
             get { return Values; }
         }
 
-        TValue IDictionary<TKey, TValue>.this[TKey key]
+        TValue? IDictionary<TKey, TValue?>.this[TKey key]
         {
             get
             {
@@ -438,37 +423,37 @@ namespace WebView
 
         #region ICollection<KeyValuePair<TKey, TValue>>
 
-        void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
+        void ICollection<KeyValuePair<TKey, TValue?>>.Add(KeyValuePair<TKey, TValue?> item)
         {
             _keyedCollection.Add(item);
         }
 
-        void ICollection<KeyValuePair<TKey, TValue>>.Clear()
+        void ICollection<KeyValuePair<TKey, TValue?>>.Clear()
         {
             _keyedCollection.Clear();
         }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
+        bool ICollection<KeyValuePair<TKey, TValue?>>.Contains(KeyValuePair<TKey, TValue?> item)
         {
             return _keyedCollection.Contains(item);
         }
 
-        void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        void ICollection<KeyValuePair<TKey, TValue?>>.CopyTo(KeyValuePair<TKey, TValue?>[] array, int arrayIndex)
         {
             _keyedCollection.CopyTo(array, arrayIndex);
         }
 
-        int ICollection<KeyValuePair<TKey, TValue>>.Count
+        int ICollection<KeyValuePair<TKey, TValue?>>.Count
         {
             get { return _keyedCollection.Count; }
         }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly
+        bool ICollection<KeyValuePair<TKey, TValue?>>.IsReadOnly
         {
             get { return false; }
         }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
+        bool ICollection<KeyValuePair<TKey, TValue?>>.Remove(KeyValuePair<TKey, TValue?> item)
         {
             return _keyedCollection.Remove(item);
         }
@@ -477,7 +462,7 @@ namespace WebView
 
         #region IEnumerable<KeyValuePair<TKey, TValue>>
 
-        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+        IEnumerator<KeyValuePair<TKey, TValue?>> IEnumerable<KeyValuePair<TKey, TValue?>>.GetEnumerator()
         {
             return GetEnumerator();
         }
@@ -497,12 +482,12 @@ namespace WebView
 
         IDictionaryEnumerator IOrderedDictionary.GetEnumerator()
         {
-            return new DictionaryEnumerator<TKey, TValue>(this);
+            return new DictionaryEnumerator<TKey, TValue?>(this);
         }
 
-        void IOrderedDictionary.Insert(int index, object key, object value)
+        void IOrderedDictionary.Insert(int index, object key, object? value)
         {
-            Insert(index, (TKey)key, (TValue)value);
+            Insert(index, (TKey)key, (TValue?)value);
         }
 
         void IOrderedDictionary.RemoveAt(int index)
@@ -510,7 +495,7 @@ namespace WebView
             RemoveAt(index);
         }
 
-        object IOrderedDictionary.this[int index]
+        object? IOrderedDictionary.this[int index]
         {
             get
             {
@@ -518,7 +503,7 @@ namespace WebView
             }
             set
             {
-                this[index] = (TValue)value;
+                this[index] = (TValue?)value;
             }
         }
 
@@ -526,9 +511,9 @@ namespace WebView
 
         #region IDictionary
 
-        void IDictionary.Add(object key, object value)
+        void IDictionary.Add(object key, object? value)
         {
-            Add((TKey)key, (TValue)value);
+            Add((TKey)key, (TValue?)value);
         }
 
         void IDictionary.Clear()
@@ -543,7 +528,7 @@ namespace WebView
 
         IDictionaryEnumerator IDictionary.GetEnumerator()
         {
-            return new DictionaryEnumerator<TKey, TValue>(this);
+            return new DictionaryEnumerator<TKey, TValue?>(this);
         }
 
         bool IDictionary.IsFixedSize
@@ -571,7 +556,7 @@ namespace WebView
             get { return (ICollection)Values; }
         }
 
-        object IDictionary.this[object key]
+        object? IDictionary.this[object key]
         {
             get
             {
@@ -579,7 +564,7 @@ namespace WebView
             }
             set
             {
-                this[(TKey)key] = (TValue)value;
+                this[(TKey)key] = (TValue?)value;
             }
         }
 

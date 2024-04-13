@@ -79,31 +79,31 @@ namespace WebView
             }
         }
 
-        private void BuildOption(RenderTreeBuilder builder, int i=0)
+        private void BuildOption(RenderTreeBuilder builder)
         {
             if (Dropdown!.MultiSelect)
             {
-                builder.OpenComponent<Checkbox>(i);
-                    //builder.AddAttribute(i + 2, "Key", this.Key);
-                builder.AddAttribute(i + 2, "Disabled", Disabled);
-                builder.AddAttribute(i + 3, "ClassName", $"ms-Dropdown-item {(Disabled ? "is-disabled" : "")} {(Hidden ? "is-hidden" : "")}  {(isSelected ? "selected" : "")}");
-                builder.AddAttribute(i + 4, "Label", Text);
-                builder.AddAttribute(i + 5, "Checked", isSelected);
-                builder.AddAttribute(i + 6, "CheckedChanged", EventCallback.Factory.Create<bool>(this, __value => { ApplyChange(); }));
+                builder.OpenComponent<Checkbox>(0);
+                //builder.AddAttribute(i + 2, "Key", this.Key);
+                builder.AddAttribute(2, "Disabled", Disabled);
+                builder.AddAttribute(3, "ClassName", $"ms-Dropdown-item {(Disabled ? "is-disabled" : "")} {(Hidden ? "is-hidden" : "")}  {(isSelected ? "selected" : "")}");
+                builder.AddAttribute(4, "Label", Text);
+                builder.AddAttribute(5, "Checked", isSelected);
+                builder.AddAttribute(6, "CheckedChanged", EventCallback.Factory.Create<bool>(this, __value => { ApplyChange(); }));
                 builder.CloseComponent();
             }
             else
             {
-                builder.OpenComponent<CommandButton>(i);
-                //builder.AddAttribute(i + 1, "Key", this.Key);
-                builder.AddAttribute(i + 2, "Disabled", Disabled);
-                builder.AddAttribute(i + 3, "ClassName", $"ms-Dropdown-item {(Disabled ? "is-disabled" : "")} {(Hidden ? "is-hidden" : "")}  {(isSelected ? "selected" : "")}");
-                builder.AddAttribute(i + 4, "OnClick", EventCallback.Factory.Create<MouseEventArgs>(this, __value => { ApplyChange(); }));
-                builder.AddAttribute(i + 5, "ChildContent", (RenderFragment)((builder2) =>
+                builder.OpenComponent<CommandButton>(0);
+                //builder.AddAttribute(1, "Key", this.Key);
+                builder.AddAttribute(2, "Disabled", Disabled);
+                builder.AddAttribute(3, "ClassName", $"ms-Dropdown-item {(Disabled ? "is-disabled" : "")} {(Hidden ? "is-hidden" : "")}  {(isSelected ? "selected" : "")}");
+                builder.AddAttribute(4, "OnClick", EventCallback.Factory.Create<MouseEventArgs>(this, __value => { ApplyChange(); }));
+                builder.AddAttribute(5, "ChildContent", (RenderFragment)((builder2) =>
                 {
-                    builder2.OpenElement(i + 6, "span");
-                    builder2.AddAttribute(i + 7, "class", "ms-Dropdown-optionText");
-                    builder2.AddContent(i + 8, Text);
+                    builder2.OpenElement(6, "span");
+                    builder2.AddAttribute(7, "class", "ms-Dropdown-optionText");
+                    builder2.AddContent(8, Text);
                     builder2.CloseElement();
                 }));
                 builder.CloseComponent();

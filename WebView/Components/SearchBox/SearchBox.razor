@@ -31,7 +31,7 @@
         }
      }
     <TextField Style=@("display: inline-block;width:" + InputWidth + "px")
-                  @ref="textFieldRef"
+                  @ref="_textFieldRef"
                   IconName=@IconName
                   IconSrc=@IconSrc
                   Placeholder=@Placeholder
@@ -39,10 +39,10 @@
 </div>
     @if (IsOpen)
     {
-        <ContextualMenu FabricComponentTarget=@textFieldRef
+        <ContextualMenu FabricComponentTarget=@_textFieldRef
                            ShouldFocusOnMount=@true
                            OnDismiss=@DismissHandler
-                           Items=@suggestions
+                           Items=@_suggestions
                            DirectionalHint=@DirectionalHint.BottomLeftEdge
                            SubordinateItemTemplate="true">
             <ItemTemplate>

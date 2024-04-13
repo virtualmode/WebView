@@ -127,7 +127,6 @@
       <ScopedCssBundle Include="$(IntermediateOutputPath)scopedcss\bundle\*.styles.css;$(IntermediateOutputPath)scopedcss\projectbundle\*.bundle.scp.css" />
       <EmbeddedResource Include="@(ScopedCssBundle)" Link="wwwroot\%(Filename)%(Extension)" Type="Non-Resx" WithCulture="false" />
     </ItemGroup>
-    <Message Text="CSS: @(ScopedCssBundle)" Importance="high" />
   </Target>
 
   <ItemGroup>
