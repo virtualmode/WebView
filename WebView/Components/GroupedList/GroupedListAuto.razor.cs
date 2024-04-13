@@ -1,0 +1,404 @@
+//using DynamicData;
+//using DynamicData.Binding;
+//using DynamicData.Cache;
+//using DynamicData.Aggregation;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using System.Reactive.Linq;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Reactive.Subjects;
+using System.Reactive;
+using System.Runtime.CompilerServices;
+using System.Collections.Specialized;
+
+namespace WebView.Lists;
+
+public partial class GroupedListAuto<TItem, TKey> : BaseComponent, IDisposable where TKey : notnull
+{
+    private List<IGroupedListItem3<TItem>>? listReference;
+
+    private const double COMPACT_ROW_HEIGHT = 32;
+    private const double ROW_HEIGHT = 42;
+
+    //private SourceCache<TItem, TKey>? sourceCache;
+    private IDisposable? sourceListSubscription;
+
+    private IEnumerable<TItem>? _itemsSource;
+
+    private IEnumerable<IDetailsRowColumn<TItem>>? _columns;
+
+#pragma warning disable BL0007 // Component parameters should be auto properties.
+    [CascadingParameter]
+    public SelectionZone<TItem>? SelectionZone { get; set; }
+
+    /// <summary>
+    /// This is intended to be populated only when GroupedList is rendered under DetailsList.
+    /// </summary>
+    [Parameter]
+    public IEnumerable<IDetailsRowColumn<TItem>>? Columns { get => _columns; set { if (_columns == value) return; else { _columns = value; OnPropertyChanged(); } } }
+
+    [Parameter]
+    public bool Compact { get; set; }
+
+    /// <summary>
+    /// GetKey must get a key that can be transformed into a unique string because the key will be written as HTML. You can leave this null if your ItemsSource implements IList as the index will be used as a key.
+    /// </summary>
+    [Parameter]
+    public Func<TItem, TKey>? GetKey { get; set; }
+
+    [Parameter]
+    public IList<Func<TItem, object>>? GroupBy { get; set; }
+
+    [Parameter]
+    public bool IsVirtualizing { get; set; } = true;
+
+    [Parameter]
+    public Func<TItem, MouseEventArgs, Task>? ItemClicked { get; set; }
+
+    [Parameter]
+    public IList<TItem>? ItemsSource { get; set; }
+
+    [Parameter]
+    public bool GroupSortDescending { get; set; }
+
+    [Parameter]
+    public RenderFragment<IndexedItem<IGroupedListItem3<TItem>>>? ItemTemplate { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnGroupExpandedChanged { get; set; }
+
+    [Parameter]
+    public Func<bool> OnShouldVirtualize { get; set; } = () => true;
+
+    [Parameter]
+    public EventCallback<Viewport> OnViewportChanged { get; set; }
+
+    [Parameter]
+    public Selection<TItem>? Selection { get; set; }
+
+    [Parameter]
+    public SelectionMode SelectionMode { get; set; } = SelectionMode.Single;
+
+    [Parameter]
+    public IList<Func<TItem, object>>? SortBy { get; set; } = null;
+
+    [Parameter]
+    public IList<bool>? SortDescending { get; set; }
+#pragma warning restore BL0007 // Component parameters should be auto properties.
+
+    private IDisposable? sourceCacheSubscription;
+    private ReadOnlyObservableCollection<IGroupedListItem3<TItem>>? groupedUIListItems = default;
+
+    private IList<bool>? _sortDescending;
+    private IList<Func<TItem, object>>? _sortBy;
+    private BehaviorSubject<IComparer<TItem>>? sortExpressionComparer;
+    private BehaviorSubject<IComparer<IGroupedListItem3<TItem>>>? subGroupSortExpressionComparer;
+
+    private Subject<Unit> resorter = new();
+
+    Dictionary<HeaderItem3<TItem,TKey>, IDisposable> headerSubscriptions = new();
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+
+    public void ToggleSelectAll()
+    {
+    }
+
+    private void OnHeaderClicked(IndexedItem<IGroupedListItem3<TItem>> indexedItem)
+    {
+        // Should check for other callback, but it doesn't exist for now. Do the OnHeaderToggled as a default action.
+        OnHeaderToggled(indexedItem);
+    }
+
+    /// <summary>
+    /// OnHeaderToggled is the action for clicking the select all button AND the default action for header clicking if the callback isn't set externally.
+    /// </summary>
+    /// <param name="indexedItem"></param>
+    private void OnHeaderToggled(IndexedItem<IGroupedListItem3<TItem>> indexedItem)
+    {
+        if (Selection != null)
+        {
+            HeaderItem3<TItem, TKey>? header = (indexedItem.Item as HeaderItem3<TItem, TKey>);
+
+            if (header != null)
+                Selection.ToggleRangeSelected(header.GroupIndex, header.Count);
+        }
+    }
+
+    public void ForceUpdate()
+    {
+        _itemsSource = Enumerable.Empty<TItem>();
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (GetKey == null)
+            throw new Exception("Must have GetKey.");
+
+        if (SortBy != _sortBy || SortDescending != _sortDescending || (SortBy != null && _sortBy != null && !SortBy.SequenceEqual(_sortBy)) || (SortDescending != null && _sortDescending != null && !SortDescending.SequenceEqual(_sortDescending)))
+        {
+            _sortBy = SortBy;
+            _sortDescending = SortDescending;
+
+            IComparer<TItem>? sortExpression = null;
+            IComparer<IGroupedListItem3<TItem>>? subGroupListSortExpression = null;
+            if (GroupBy != null)
+            {
+                for (int i = 0; i < GroupBy.Count; i++)
+                {
+                    //if (sortExpression == null)
+                    //{
+                    //    if (GroupSortDescending)
+                    //        sortExpression = SortExpressionComparer<TItem>.Descending(GroupBy[i].ConvertToIComparable());
+                    //    else
+                    //        sortExpression = SortExpressionComparer<TItem>.Ascending(GroupBy[i].ConvertToIComparable());
+                    //}
+                    //else
+                    //{
+                    //    if (GroupSortDescending)
+                    //        sortExpression = (sortExpression as SortExpressionComparer<TItem>)!.ThenByDescending(GroupBy[i].ConvertToIComparable());
+                    //    else
+                    //        sortExpression = (sortExpression as SortExpressionComparer<TItem>)!.ThenByAscending(GroupBy[i].ConvertToIComparable());
+                    //}
+                }
+            }
+
+            if (SortBy != null)
+            {
+                System.Collections.Generic.List<Func<TItem, object>>? sortBy = SortBy.ToList();  // Making a local copy.
+                for (int i = 0; i < sortBy.Count; i++)
+                {
+                    int j = i;  // Local copy.
+                    //if (sortExpression == null)
+                    //{
+                    //    if (SortDescending![j])
+                    //        sortExpression = SortExpressionComparer<TItem>.Descending(sortBy[j].ConvertToIComparable());
+                    //    else
+                    //        sortExpression = SortExpressionComparer<TItem>.Ascending(sortBy[j].ConvertToIComparable());
+                    //}
+                    //else
+                    //{
+                    //    if (SortDescending![j])
+                    //        sortExpression = (sortExpression as SortExpressionComparer<TItem>)!.ThenByDescending(sortBy[j].ConvertToIComparable());
+                    //    else
+                    //        sortExpression = (sortExpression as SortExpressionComparer<TItem>)!.ThenByAscending(sortBy[j].ConvertToIComparable());
+                    //}
+                }
+                for (int i = 0; i < sortBy.Count; i++)
+                {
+                    int j = i;  // Local copy, necessary for the callback... not really for the above part.
+                    //if (subGroupListSortExpression == null)
+                    //{
+                    //    if (SortDescending![j])
+                    //        subGroupListSortExpression = SortExpressionComparer<IGroupedListItem3<TItem>>.Descending(x => (sortBy[j](x.Item!) as IComparable)!);
+                    //    else
+                    //        subGroupListSortExpression = SortExpressionComparer<IGroupedListItem3<TItem>>.Ascending(x => (sortBy[j](x.Item!) as IComparable)!);
+                    //}
+                    //else
+                    //{
+                    //    if (SortDescending![j])
+                    //        subGroupListSortExpression = (subGroupListSortExpression as SortExpressionComparer<IGroupedListItem3<TItem>>)!.ThenByDescending(x => (sortBy[j](x.Item!) as IComparable)!);
+                    //    else
+                    //        subGroupListSortExpression = (subGroupListSortExpression as SortExpressionComparer<IGroupedListItem3<TItem>>)!.ThenByAscending(x => (sortBy[j](x.Item!) as IComparable)!);
+                    //}
+                }
+            }
+
+            if (sortExpression == null)  // Need to sort by **something** or else DD will use any ordering after grouping and it won't match selection sort. Going to use original list order.
+            {
+                sortExpression = new OriginalSortComparer<TItem>(ItemsSource!);
+                subGroupListSortExpression = new OriginalGroupSortComparer<TItem>(ItemsSource!);
+            }
+
+            if (sortExpressionComparer == null)
+                sortExpressionComparer = new BehaviorSubject<IComparer<TItem>>(sortExpression);
+            else
+                sortExpressionComparer.OnNext(sortExpression);
+
+            if (subGroupSortExpressionComparer == null)
+                subGroupSortExpressionComparer = new BehaviorSubject<IComparer<IGroupedListItem3<TItem>>>(subGroupListSortExpression!);
+            else
+                subGroupSortExpressionComparer.OnNext(subGroupListSortExpression!);
+        }
+        else if ((SortBy == null && _sortBy != null) || sortExpressionComparer == null)
+        {
+            // Even if there's no sorting and we're using the original list's order, we need to apply grouping "sorting" for the selection list.
+            IComparer<TItem>? sortExpression = null;
+
+            if (GroupBy != null)
+                sortExpression = new OriginalSortComparerPresortedByGroups<TItem>(ItemsSource!, GroupBy, GroupSortDescending);
+            else
+                sortExpression = new OriginalSortComparer<TItem>(ItemsSource!);
+
+            OriginalGroupSortComparer<TItem>? subGroupListSortExpression = new(ItemsSource!);
+
+            if (sortExpressionComparer == null)
+                sortExpressionComparer = new BehaviorSubject<IComparer<TItem>>(sortExpression);
+            else
+                sortExpressionComparer.OnNext(sortExpression);
+
+            if (subGroupSortExpressionComparer == null)
+                subGroupSortExpressionComparer = new BehaviorSubject<IComparer<IGroupedListItem3<TItem>>>(subGroupListSortExpression);
+            else
+                subGroupSortExpressionComparer.OnNext(subGroupListSortExpression);
+        }
+
+        if (GroupBy != null)
+        {
+            if (ItemsSource != null && !ItemsSource.Equals(_itemsSource))
+            {
+                if (_itemsSource is INotifyCollectionChanged)
+                {
+                    (_itemsSource as INotifyCollectionChanged)!.CollectionChanged -= GroupedListAuto_CollectionChanged;
+                }
+
+                _itemsSource = ItemsSource;
+                CreateSourceCache();
+
+                if (_itemsSource is INotifyCollectionChanged)
+                {
+                    (_itemsSource as INotifyCollectionChanged)!.CollectionChanged += GroupedListAuto_CollectionChanged;
+                }
+
+                //if (_itemsSource != null)
+                //    sourceCache?.AddOrUpdate(_itemsSource);
+            }
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    private void GroupedListAuto_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                //sourceCache?.Edit(x =>
+                //{
+                //    if (e.NewItems != null)
+                //    {
+                //        foreach (TItem item in e.NewItems)
+                //        {
+                //            x.AddOrUpdate(item);
+                //        }
+                //    }
+                //});
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                //sourceCache?.Edit(x =>
+                //{
+                //    if (e.OldItems != null)
+                //    {
+                //        foreach (TItem item in e.OldItems)
+                //        {
+                //            x.Remove(item);
+                //        }
+                //    }
+                //});
+                break;
+            case NotifyCollectionChangedAction.Reset:
+                //sourceCache?.Edit(x =>
+                //{
+                //    if (_itemsSource != null)
+                //    {
+                //        x.Clear();
+                //        x.AddOrUpdate(_itemsSource);
+                //    }
+                //});
+                break;
+            case NotifyCollectionChangedAction.Replace:
+                //sourceCache?.Edit(x =>
+                //{
+                //    if (e.NewItems != null)
+                //    {
+                //        foreach (TItem item in e.NewItems)
+                //        {
+                //            x.AddOrUpdate(item);
+                //        }
+                //    }
+                //});
+                break;
+        }
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        //Debug.WriteLine($"There are {groupedUIListItems.Count} items to render");
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void CreateSourceCache()
+    {
+        sourceCacheSubscription?.Dispose();
+        sourceCacheSubscription = null;
+
+        sourceListSubscription?.Dispose();
+        sourceListSubscription = null;
+
+        if (_itemsSource == null)
+        {
+            return;
+        }
+
+        //sourceCache = new SourceCache<TItem,TKey>(GetKey!);
+
+        Func<TItem, object>? firstGrouping = GroupBy?.FirstOrDefault();
+        IEnumerable<Func<TItem, object>>? remainingGrouping = GroupBy?.Skip(1);
+
+        //IConnectableObservable<IChangeSet<TItem, TKey>>? published = sourceCache.Connect().Publish();
+
+        Subject<Unit> reindexTrigger = new();
+
+        //ReplaySubject<IConnectableObservable<ISortedChangeSet<IGroupedListItem3<TItem>, object>>> futureGroups = new();
+
+        //IConnectableObservable<ISortedChangeSet<IGroup<TItem, TKey, object>, object>>? groupsPublished = published.Group(firstGrouping!)
+        //    .Sort(SortExpressionComparer<IGroup<TItem, TKey, object>>.Ascending(x => (x.Key as IComparable)!))
+        //    .Replay();
+
+        //groupsPublished
+        //    .Transform(group =>
+        //    {
+        //        return new HeaderItem3<TItem, TKey>(group, remainingGrouping, 0, groupsPublished, null, subGroupSortExpressionComparer!, () => InvokeAsync(StateHasChanged), reindexTrigger) as IGroupedListItem3<TItem>;
+        //    })
+        //    .Sort(SortExpressionComparer<IGroupedListItem3<TItem>>.Ascending(x=>x.Name!))
+        //    .Bind(out groupedUIListItems)
+        //    .Do(_ => {})
+        //    .Subscribe(x => { }, error => {
+        //        Debug.WriteLine(error.Message);
+        //    });
+
+        //groupsPublished.Connect();
+
+        //published
+        //    .Sort(sortExpressionComparer!)
+        //    .Bind(out ReadOnlyObservableCollection<TItem>? selectionItems)
+        //    .Subscribe(x => { }, error =>
+        //    {
+        //        Debug.WriteLine(error.Message);
+        //    });
+
+        //sourceListSubscription = published.Connect();
+
+        //Selection?.SetItems(selectionItems);
+    }
+
+    public void Dispose()
+    {
+        foreach (KeyValuePair<HeaderItem3<TItem, TKey>, IDisposable> header in headerSubscriptions)
+        {
+            header.Value.Dispose();
+        }
+    }
+}

@@ -101,7 +101,7 @@ namespace WebView
             return _items ?? new List<TItem>();
         }
 
-        public void SetItems(IList<TItem> items, bool shouldClear = true)
+        public void SetItems(IList<TItem>? items, bool shouldClear = true)
         {
             Dictionary<object, int> newKeyToIndexMap = new();
             Dictionary<int, TItem> newUnselectableIndices = new();
