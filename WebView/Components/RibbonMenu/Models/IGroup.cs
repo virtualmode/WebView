@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace WebView.Models;
 
-namespace WebView.Models
+public interface IGroup
 {
-    public interface IGroup
-    {
-        ICollection<IRibbonItem> ItemsSource { get; set; }
-    }
+    ICollection<IRibbonItem> ItemsSource { get; set; }
 }

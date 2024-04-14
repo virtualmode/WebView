@@ -8,8 +8,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType Condition="'$(Configuration)' == 'Release'">WinExe</OutputType>
+    <EnforeExtendedAnalyzerRules>true</EnforeExtendedAnalyzerRules>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <!--<TraceSingleFileBundler>true</TraceSingleFileBundler>
+    <!--<UseRazorSourceGenerator>false</UseRazorSourceGenerator>
+    <TraceSingleFileBundler>true</TraceSingleFileBundler>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <DisableScopedCssBundling>true</DisableScopedCssBundling>
@@ -43,6 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Samples.Generator\Samples.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\WebView\WebView.csproj" />
   </ItemGroup>
 

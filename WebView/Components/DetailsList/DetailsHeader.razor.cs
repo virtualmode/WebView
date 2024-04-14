@@ -95,7 +95,7 @@ namespace WebView.Lists
         [Parameter]
         public bool UseFastIcons { get; set; } = true;
 
-        private const string ScriptPath = "./_content/BlazorFluentUI.CoreComponents/detailsList.js";
+        private readonly string ScriptPath = $"./_content/{WebViewService.Name}/detailsList.js";
         private IJSObjectReference? scriptModule;
 
         private bool showCheckbox;

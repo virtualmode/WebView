@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{CA04F647-B22E-41C1-B9E4-F2B62073544D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{CA04F647-B22E-41C1-B9E4-F2B62073544D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebView", "WebView\WebView.csproj", "{EF45E174-8C4A-4396-A47A-9D1D980A0D70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Generator", "Samples.Generator\Samples.Generator.csproj", "{2DA8ECC5-20AE-49BB-B2AB-72BCD374DA88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{EF45E174-8C4A-4396-A47A-9D1D980A0D70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF45E174-8C4A-4396-A47A-9D1D980A0D70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF45E174-8C4A-4396-A47A-9D1D980A0D70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DA8ECC5-20AE-49BB-B2AB-72BCD374DA88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DA8ECC5-20AE-49BB-B2AB-72BCD374DA88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DA8ECC5-20AE-49BB-B2AB-72BCD374DA88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DA8ECC5-20AE-49BB-B2AB-72BCD374DA88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

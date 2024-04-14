@@ -1,0 +1,15 @@
+@using Samples.Models
+
+<Dropdown ItemsSource="statuses" OnChange="ChangeHandler" SelectedOption="row!.Secondstatus"></Dropdown>
+
+@code {
+    [Parameter]
+    public CustomGrid? row { get; set; }
+    [Parameter]
+    public  System.Collections.Generic.List<IDropdownOption>? statuses { get; set; }
+
+    private void ChangeHandler(DropdownChangeArgs args)
+    {
+        row!.Secondstatus= args.Option;
+    }
+}

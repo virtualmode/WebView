@@ -1,23 +1,62 @@
+@using Microsoft.AspNetCore.Components
+@using WebView.Themes.Default
+@namespace Samples
 @inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<style>
+    :root {
+        --demoShadowColors1: @((customTheme ? "rgba(255,255,255,0.132)" : "rgba(0,0,0,0.132)" ));
+        --demoShadowColors2: @((customTheme ? "rgba(255,255,255,0.108)" : "rgba(0,0,0,0.108)" ));
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+        --demoSiteBackgroundColor: @((customTheme ? "#11100f" : "#faf9f8" ));
+    }
+</style>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+<div class="siteWrapper">
+    <Stack Horizontal="true" Style="width:100%;">
+        <ResponsiveLayout MinWidth="ResponsiveMode.Medium.ToMinCssValue()">
+            <StackItem Grow="0" DisableShrink="true" Style="height:100%;overflow:hidden;">
+                <NavMenu />
+            </StackItem>
+        </ResponsiveLayout>
+        <StackItem Grow="1" Style="overflow:hidden">
+            <Stack VerticalFill="true" Style="width:100%;">
+                <ResponsiveLayout MaxWidth="ResponsiveMode.Medium.ToMaxCssValue()">
+                    <StackItem Grow="0" VerticalFill="false">
+                        <IconButton IconName="navigation" OnClick=@ShowMenu Style="position:fixed;z-index:1000;"/>
+                    </StackItem>
+                </ResponsiveLayout>
+                <ResponsiveLayout MinWidth="ResponsiveMode.Medium.ToMinCssValue()">
+                    <Stack Horizontal="true" HorizontalAlign="Alignment.SpaceBetween" VerticalAlign="Alignment.Center" Style="width:100%">
+                        <StackItem Grow="0" VerticalFill="false" Style="padding-left: 40px;">
+                            <div class="top-row">
+                                <WebView.Link Href="https://github.com/virtualmode/WebView" Target="_blank">View WebView GitHub repo</WebView.Link>
+                            </div>
+                        </StackItem>
+                        <StackItem DisableShrink="true">
+                            <Toggle Checked=customTheme CheckedChanged="@SwitchTheme" OnText="Dark Theme" OffText="Default Theme" />
+                        </StackItem>
+                    </Stack>
+                </ResponsiveLayout>
+                <div class="siteContent" style="@dark">
+                    <div class="sectionWrapper" style="@dark">
+                        @Body
+                    </div>
+                </div>
+            </Stack>
+            <ResponsiveLayout MaxWidth="ResponsiveMode.Medium.ToMaxCssValue()">
+                <Panel Type=@PanelType.SmallFixedNear OnDismiss=@(() => isPanelOpen = false) IsOpen=@isPanelOpen IsLightDismiss="true">
+                    <NavigationTemplate>
+                        <IconButton IconName="navigation" OnClick=@(() => isPanelOpen = false) />
+                        <Toggle Checked=customTheme CheckedChanged="@SwitchTheme" OnText="Dark Theme" OffText="Default Theme" />
+                        <WebView.Link Href="https://github.com/virtualmode/WebView" Target="_blank">View WebView GitHub repo</WebView.Link>
+                    </NavigationTemplate>
+                    <ChildContent>
+                        <NavMenu OnLinkClicked=@OnNavLinkClick />
+                    </ChildContent>
+                </Panel>
+            </ResponsiveLayout>
+        </StackItem>
+    </Stack>
 </div>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">X</a>
-</div>

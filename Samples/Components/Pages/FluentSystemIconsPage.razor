@@ -1,0 +1,129 @@
+@page "/fluentSystemIconsPage"
+@using System.Text.RegularExpressions
+@using Samples.Models
+
+<style>
+    .preview {
+        display:flex;
+        flex-direction:column;
+        height:120px;
+        width: 120px;
+        margin: 10px;
+    }
+
+        .preview .inner {
+            text-align: center;
+            background: #f5f5f5;
+            border-radius: 3px 3px 0 0;
+        }
+
+            .preview .inner i {
+                line-height: 85px;
+                font-size: 40px;
+                color: #333;
+            }
+
+    .label {
+        padding: 5px;
+        font-size: 10px;
+        font-family: Monaco, monospace;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        background: #ddd;
+        border-radius: 0 0 3px 3px;
+        color: #666;
+    }
+</style>
+
+<PageTitle>Fluent System Icons | Blazor Fluent UI WebAssembly Demo</PageTitle>
+
+<header class="root">
+    <h1>Fluent System Icons</h1>
+</header>
+
+<div class="section" style="transition-delay: 0s;">
+    <div id="overview" tabindex="-1">
+        <h2 class="subHeading hiddenContent">Overview</h2>
+    </div>
+    <div class="content">
+        <div class="ms-Markdown">
+            <p>
+                The Fluent System Icons set is available as 2 TrueType fonts. One for regular icons and one for filled icons.
+
+            </p>
+        </div>
+    </div>
+</div>
+<div class="section" >
+    <div class="subSection" id="regular" data-is-scrollable="true" style="overflow-y:auto;height:600px;">
+        <WebView.Lists.List ItemsSource=@regularIcons
+                                   UseGridFlexLayout="true"
+                                   ItemWidth="120"
+                                   TItem="FontModel">
+            <ItemTemplate>
+                <div class="preview">
+                    <span class="inner">
+                        <Icon IconName=@context.Item!.Name IconSize=@context.Item.Size Filled=false />
+                    </span>
+                    <span class="label">@context.Item.Name @context.Item.Size</span>
+                </div>
+            </ItemTemplate>
+        </WebView.Lists.List>
+    </div>
+
+    <div class="subSection" id="filled" data-is-scrollable="true" style="overflow-y:auto;height:600px;">
+        <WebView.Lists.List ItemsSource=@filledIcons
+                               UseGridFlexLayout="true"
+                               ItemWidth="120"
+                               TItem="FontModel">
+        <ItemTemplate>
+            <div class="preview">
+                <span class="inner">
+                    <Icon IconName=@context.Item!.Name IconSize=@context.Item.Size Filled=true />
+                </span>
+                <span class="label">@context.Item.Name @context.Item.Size</span>
+            </div>
+        </ItemTemplate>
+    </WebView.Lists.List>
+</div>
+</div>
+
+@code {
+    List<FontModel>? regularIcons;
+    List<FontModel>? filledIcons;
+
+    protected override Task OnInitializedAsync()
+    {
+
+        regularIcons = filterIcons(false);
+        filledIcons = filterIcons(true);
+
+        return Task.CompletedTask;
+    }
+
+    private List<FontModel> filterIcons(bool filled)
+    {
+        var regex = new Regex(@"ic_fluent_(\w*)_(\d*)_(\w*)");
+
+        var data = IconMap.Icons.Select(x =>
+            {
+                var matches = regex.Matches(x.Key);
+                if (matches.Count > 0)
+                {
+                    var model = new FontModel()
+                        {
+                            Name = matches[0].Groups[1].Value,
+                            Size = int.Parse(matches[0].Groups[2].Value),
+                            Filled = matches[0].Groups[3].Value == "filled" ? true : false
+                        };
+                    return model;
+                }
+                else
+                    return new FontModel();
+            }
+        ).Where(t => t.Filled == filled).OrderBy(t=>t.Name).ToList();
+
+        return data;
+    }
+}
