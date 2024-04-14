@@ -9,11 +9,13 @@
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="Samples.styles.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
+    <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
+    <script src="_content/WebView/richTextEditor.js"></script>
+    <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <script src="_framework/blazor.web.js"></script>
 </body>
 

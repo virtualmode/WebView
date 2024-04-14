@@ -73,7 +73,6 @@ namespace WebView
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-
             try
             {
                 if (baseModule == null)
@@ -99,7 +98,6 @@ namespace WebView
         {
             CancellationToken token = cancellationTokenSource.Token;
             return await GetBoundsAsync(token);
-
         }
 
         public async Task<Rectangle> GetBoundsAsync(CancellationToken cancellationToken)
